@@ -1,6 +1,5 @@
 """Главный модуль сервиса синхронизации файлов."""
 
-A
 import configparser
 import logging
 import os
