@@ -1,0 +1,6 @@
+[Settings]
+sync_folder = /path/to/your/sync/folder
+cloud_folder_name = CloudBackup
+yandex_token = YOUR_YANDEX_TOKEN_HERE
+sync_interval = 60
+log_file = sync_service.log
