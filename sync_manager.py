@@ -102,16 +102,57 @@ class SyncManager:
     def _ensure_cloud_consistency(self) -> None:
         """
         Проверяет согласованность облачной папки.
-        Если облачная папка пуста, а локальные файлы есть — выполняет синхронизацию.
-        """
-        cloud_files = self._get_cloud_files()
-        local_files = self._get_local_files()
 
-        # Если облачная папка пуста, а локальные файлы есть
+        Сравнивает локальные и облачные файлы и восстанавливает:
+        1. Файлы, которые есть локально, но отсутствуют в облаке
+        2. Если облачная папка пуста, а локальные файлы есть — полная синхронизация
+        """
+        local_files = self._get_local_files()
+        cloud_files = self._get_cloud_files()
+
+        # Случай 1: Облачная папка пуста, но локальные файлы есть
         if not cloud_files and local_files:
             logger.warning("Облачная папка пуста, выполняем полную синхронизацию...")
             self.first_sync_done = False
             self._full_sync()
+            return
+
+        # Случай 2: В облаке отсутствуют файлы, которые есть локально
+        local_filenames = set(local_files.keys())
+        missing_files = local_filenames - cloud_files
+
+        if missing_files:
+            logger.warning(f"В облаке отсутствуют файлы: {', '.join(missing_files)}")
+            logger.info("Восстанавливаем отсутствующие файлы...")
+
+            for filename in missing_files:
+                filepath = local_files[filename]
+                logger.info(f"Восстановление файла в облаке: {filename}")
+                if self.cloud.load(filepath):
+                    self.file_states[filename] = os.path.getmtime(filepath)
+
+            # Перезапоминаем состояния всех локальных файлов
+            for filename, filepath in local_files.items():
+                if filename not in self.file_states:
+                    self.file_states[filename] = os.path.getmtime(filepath)
+
+            logger.info("Восстановление файлов завершено")
+
+        # Случай 3: В облаке есть файлы, которых нет локально (удаляем лишние)
+        cloud_filenames = set(cloud_files)
+        extra_files = cloud_filenames - local_filenames
+
+        if extra_files:
+            logger.info(f"В облаке есть лишние файлы: {', '.join(extra_files)}")
+            logger.info("Удаляем лишние файлы из облака...")
+
+            for filename in extra_files:
+                logger.info(f"Удаление лишнего файла из облака: {filename}")
+                if self.cloud.delete(filename):
+                    if filename in self.file_states:
+                        del self.file_states[filename]
+
+            logger.info("Удаление лишних файлов завершено")
 
     def _sync_new_files(self, local_files: Dict[str, str]) -> None:
         """Синхронизирует новые файлы из локальной папки в облако."""

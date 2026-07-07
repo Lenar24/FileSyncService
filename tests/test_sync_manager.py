@@ -163,11 +163,13 @@ class TestSyncManager:
             f.write("Local file")
 
         cloud_storage_mock.get_info.return_value = {"cloud_only.txt": "disk:/path/cloud_only.txt"}
+        cloud_storage_mock.load.return_value = True
+        cloud_storage_mock.delete.return_value = True
 
         manager.sync_once()
 
         cloud_storage_mock.load.assert_called_once_with(filepath)
-        cloud_storage_mock.delete.assert_not_called()
+        cloud_storage_mock.delete.assert_called_once_with("cloud_only.txt")
 
     def test_sync_once_error_handling(self, sync_folder, cloud_storage_mock):
         """Тест: ошибки не прерывают работу."""
