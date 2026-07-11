@@ -1,0 +1,68 @@
+[project]
+name = "filesyncservice"
+version = "1.0.0"
+description = "Сервис синхронизации файлов с облачным хранилищем"
+readme = "README.md"
+requires-python = ">=3.8"
+
+[tool.black]
+line-length = 100
+target-version = ['py38']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.ruff]
+line-length = 100
+exclude = [
+    ".git",
+    ".venv",
+    "__pycache__",
+    "build",
+    "dist",
+]
+
+[tool.ruff.lint]
+select = [
+    "E", "W", "F", "I", "N", "B", "C4", "SIM", "RET", "ARG", "ERA", "PL", "RUF"
+]
+
+ignore = [
+    "E501",
+    "B008",
+    "B904",
+    "SIM105",
+    "RET504",
+    "RUF001",
+    "RUF002",
+    "RUF003",
+    "PTH",
+    "PLR2004",
+    "SIM102",
+    "RET505",
+    "PLR0911",
+    "PLR0912",
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["cloud_storage", "sync_manager", "logger_setup"]
+known-third-party = ["requests"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = [
+    "S101", "PLR2004", "ARG001", "B011",
+    "RUF001", "RUF002",
+    "RUF003", "RET505"
+]
