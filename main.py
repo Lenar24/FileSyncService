@@ -35,7 +35,10 @@ def load_config() -> dict:
             "log_file = sync_service.log"
         )
 
-    config.read(config_path, encoding="utf-8")
+    try:
+        config.read(config_path, encoding="utf-8")
+    except Exception as e:
+        raise ValueError(f"Ошибка чтения config.ini: {e}")
 
     if not config.has_section("Settings"):
         raise ValueError(
@@ -61,11 +64,14 @@ def load_config() -> dict:
             f"Отсутствуют обязательные параметры в config.ini: {', '.join(missing_params)}"
         )
 
-    sync_folder = config.get("Settings", "sync_folder")
-    cloud_folder = config.get("Settings", "cloud_folder_name")
-    yandex_token = config.get("Settings", "yandex_token")
-    sync_interval = config.get("Settings", "sync_interval")
-    log_file = config.get("Settings", "log_file")
+    try:
+        sync_folder = config.get("Settings", "sync_folder")
+        cloud_folder = config.get("Settings", "cloud_folder_name")
+        yandex_token = config.get("Settings", "yandex_token")
+        sync_interval = config.get("Settings", "sync_interval")
+        log_file = config.get("Settings", "log_file")
+    except Exception as e:
+        raise ValueError(f"Ошибка чтения параметров из config.ini: {e}")
 
     try:
         sync_interval = int(sync_interval)

@@ -45,8 +45,10 @@ class SyncManager:
                     files[filename] = filepath
         except PermissionError:
             logger.error(f"Нет доступа к папке: {self.sync_folder}")
+            return {}
         except Exception as e:
             logger.error(f"Ошибка чтения папки: {e}")
+            return {}
         return files
 
     def _get_cloud_files(self) -> Set[str]:
